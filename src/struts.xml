@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<!-- 主题 -->
+	<constant name="struts.ui.theme" value="simple"/>
+	<!-- 开发模式 -->
+	<constant name="struts.devMode" value="true"/>
+	
+	<package name="default" namespace="/" extends="struts-default">
+	
+		<interceptors>
+			<!-- 注册登录拦截器 -->
+			<interceptor name="loginInterceptor" class="com.data.struts2.Interceptor.LoginInterceptor"/>
+			<!-- 定义拦截器栈 -->
+			<interceptor-stack name="surveyparKStack">
+				<interceptor-ref name="loginInterceptor"/>
+				<interceptor-ref name="defaultStack">
+					<param name="modelDriven.refreshModelBeforeResult">true</param>
+					<!--文件大小  -->
+					<param name="fileUpload.maximumSize">600000</param>
+					<!--文件扩展名  -->
+					<param name="fileUpload.allowedExtensions">.jpg,.jpeg,.png,.bmp,.gif</param>
+					<!--文件内容类型  -->
+					<param name="fileUpload.allowedTypes">image/jpg,image/jpeg,image/pjpeg,image/png,image/gif,image/bmp</param>
+				</interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		
+		<!-- 定义默认栈 -->
+		<default-interceptor-ref name="surveyparKStack"/>
+		
+		<!-- 定义全局结果 -->
+		<global-results>
+			<result name="login">index.jsp</result>
+			<result name="designSurveyAction" type="redirectAction">
+				<param name="namespace">/</param>
+				<param name="actionName">SurveyAction_designSurvey</param>
+				<param name="sid">${sid}</param>
+			</result>
+		</global-results>
+		<!-- regAction -->
+		<action name="RegAction_*" class="regAction" method="{1}">
+			<result name="regPage">/reg.jsp</result>
+			<result name="input">/reg.jsp</result>
+			<result name="success">/index.jsp</result>
+		</action>
+		<!-- loginAction -->
+		<action name="LoginAction_*" class="loginAction" method="{1}">
+			<result name="loginPage">/index.jsp</result>
+			<result name="input">/index.jsp</result>
+			<result name="success">/index.jsp</result>
+		</action>
+		<!--SurveyAction  -->
+		<action name="SurveyAction_*" class="surveyAction" method="{1}">
+			<result name="mySurveyListPage">/mySurveyList.jsp</result>
+			<result name="designSurveyPage">/designSurvey.jsp</result>
+			<result name="editSurveyPage">/editSurvey.jsp</result>
+			<result name="addLogoPage">/addLogo.jsp</result>
+			<result name="input">${inputPage}</result>
+			
+			<result name="findMySurveysAction" type="redirectAction">
+				<param name="namespace">/</param>
+				<param name="actionName">SurveyAction_mySurveys</param>
+			</result>
+		</action>
+		<!--PageAction  -->
+		<action name="PageAction_*" class="pageAction" method="{1}">
+			<result name="addPagePage">editPage.jsp</result>
+			<result name="editPagePage">editPage.jsp</result>
+		</action>
+		<!-- QuestionAction -->
+		<action name="QuestionAction_*" class="questionAction" method="{1}">
+			<result name="selectQuestionTypePage">/selectQuestionType.jsp</result>
+			<!-- 根据题型动态返回设计问题页面 -->
+			<result name="0">/nonMatrixWithOtherQuestionDesign.jsp</result>
+			<result name="1">/nonMatrixWithOtherQuestionDesign.jsp</result>
+			<result name="2">/nonMatrixWithOtherQuestionDesign.jsp</result>
+			<result name="3">/nonMatrixWithOtherQuestionDesign.jsp</result>
+
+			<result name="4">/nonMatrixSelectQuestionDesign.jsp</result>
+			<result name="5">/nonMatrixTextQuestionDesign.jsp</result>
+
+			<result name="6">/matrixNormalQuestionDesign.jsp</result>
+			<result name="7">/matrixNormalQuestionDesign.jsp</result>
+			<result name="8">/matrixSelectQuestionDesign.jsp</result>
+		</action>
+		
+		<!-- EngageSurveyAction -->
+		<action name="EngageSurveyAction_*" class="engageSurveyAction" method="{1}">
+			<result name="engageSurveyListPage">/engageSurveyList.jsp</result>
+			<result name="engageSurveyPage">/engageSurvey.jsp</result>
+			<result name="engageSurveyAction" type="redirectAction">
+				<param name="namespace">/</param>
+				<param name="actionName">EngageSurveyAction_findAllAvailableSurveys</param>
+			</result>
+		</action>
+		
+	</package>
+</struts>    

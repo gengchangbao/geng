@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation=
+	"http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/context
+	   http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+		
+		<!-- 扫描 -->
+		<context:component-scan base-package="com.data.dao.impl,com.data.service.impl,com.data.struts2.cation"/>
+		<!-- 分散配置 -->
+		<context:property-placeholder location="classpath:jdbc.properties"/>
+		<!-- 配置数据原 -->
+		<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+			<property name="driverClass" value="${jdbc.driverclass}"/>
+			<property name="jdbcUrl" value="${jdbc.url}"/>
+			<property name="user" value="${jdbc.username}"/>
+			<property name="password" value="${jdbc.password}"/>
+			
+			<property name="maxPoolSize" value="${c3p0.pool.size.max}"/>
+			<property name="minPoolSize" value="${c3p0.po0l.size.min}"/>
+			<property name="initialPoolSize" value="${c3p0.pool.size.ini}"/>
+			<property name="acquireIncrement" value="${c3p0.pool.size.increment}"/>
+		</bean>
+		<!-- 本地会话工厂bean(spring整合hibernate的核心入口) -->
+		<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="configLocation" value="classpath:hibernate.cfg.xml">
+		</property>
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="mappingDirectoryLocations">
+				<list>
+					<value>classpath:com/data/model</value>
+				</list>
+			</property>
+	</bean>
+		
+		<!-- hibernate事务管理器,用来在service层面上实现事务管理，而且达到平台无关性 -->
+		
+		<bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+			<property name="sessionFactory" ref="sessionFactory"/>
+		</bean>
+		<!-- 事物通知 -->
+		<tx:advice id="txAdvice" transaction-manager="txManager">
+			<tx:attributes>
+			<!-- 写操作 -->
+				<tx:method name="save*" propagation="REQUIRED" isolation="DEFAULT"/>
+				<tx:method name="update*" propagation="REQUIRED" isolation="DEFAULT"/>
+				<tx:method name="delete*" propagation="REQUIRED" isolation="DEFAULT"/>
+				<tx:method name="batch*" propagation="REQUIRED" isolation="DEFAULT"/>
+				<!-- 读操作 -->
+				<tx:method name="load*" propagation="REQUIRED" isolation="DEFAULT" read-only="true"/>
+				<tx:method name="get*" propagation="REQUIRED" isolation="DEFAULT" read-only="true"/>
+				<tx:method name="find*" propagation="REQUIRED" isolation="DEFAULT" read-only="true"/>
+				
+				<tx:method name="*" propagation="REQUIRED" isolation="DEFAULT"/>
+			</tx:attributes>
+		</tx:advice>
+		<!-- aop配置 -->
+		<aop:config>
+			<aop:advisor advice-ref="txAdvice" pointcut="execution(* *..*Service.*(..))"/>
+		</aop:config>
+</beans>
